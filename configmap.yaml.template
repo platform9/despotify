@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: despotify
+  namespace: kube-system
+data:
+  NOTICE_URL: '${NOTICE_URL}'
+  SLACK_URL: '${SLACK_URL}'
+  SLACK_CHANNEL: '${SLACK_CHANNEL}'
+  SLACK_USERNAME: '${SLACK_USERNAME}'
+  DETACH_FROM_ASG: 'false'

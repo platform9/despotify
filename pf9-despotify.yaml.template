@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pf9-despotify
+  namespace: kube-system
+  labels:
+    pmkft: cogs
+spec:
+  selector:
+    matchLabels:
+      name: pf9-despotify
+  template:
+    metadata:
+      labels:
+        name: pf9-despotify
+    spec:
+      priorityClassName: high-priority
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: pf9-despotify
+        image: ${DESPOTIFY_IMAGE}
+        imagePullPolicy: Always
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NOTICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: despotify
+              key: NOTICE_URL
+        - name: SLACK_URL
+          valueFrom:
+            configMapKeyRef:
+              name: despotify
+              key: SLACK_URL
+        - name: SLACK_CHANNEL
+          valueFrom:
+            configMapKeyRef:
+              name: despotify
+              key: SLACK_CHANNEL
+        - name: SLACK_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: despotify
+              key: SLACK_USERNAME
+        - name: DETACH_FROM_ASG
+          valueFrom:
+            configMapKeyRef:
+              name: despotify
+              key: DETACH_FROM_ASG
+        resources:
+          limits:
+            memory: 200Mi
+      terminationGracePeriodSeconds: 30
