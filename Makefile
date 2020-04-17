@@ -43,7 +43,6 @@ push: $(TAG_FILE)
 		(echo -n $${DOCKER_PASSWORD} | docker login --password-stdin -u $${DOCKER_USERNAME} && \
 		docker push $(DESPOT_IMAGE) && docker logout))
 	docker rmi $(DESPOT_IMAGE)
-	rm -f $(TAG_FILE)
 
 venv: | $(TEST_VENV)
 
