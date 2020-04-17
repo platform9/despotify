@@ -39,3 +39,5 @@ agent/nodelet/vendor
 *.out
 junit.xml
 coverage.html
+
+build/
