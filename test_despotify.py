@@ -11,20 +11,23 @@ import despotify.despotify as despotify
 class MockResponse:
     def __init__(self,
                  text='',
+                 reason='',
                  status_code=200):
         self.status_code = status_code
         self.text = text
+        self.reason = reason
 
     def json(self):
         return json.loads(self.text)
 
 
 def mocked_yes_termination_notice(*args, **kwargs):
-    return MockResponse(status_code=200)
+    response_text = '{"instances_to_terminate": ["inst-0001"]}'
+    return MockResponse(text=response_text, status_code=200)
 
 
 def mocked_no_termination_notice(*args, **kwargs):
-    return MockResponse(status_code=404)
+    return MockResponse(status_code=404, reason='no termination notice')
 
 
 def mocked_instance_id_ok(*args, **kwargs):
@@ -73,6 +76,7 @@ class TestDespotify(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         despotify.setup_logging()
+        despotify.configure_global_vars()
 
     @mock.patch('requests.get', side_effect=mocked_no_termination_notice)
     def test_no_termination_notice(self, _):
@@ -107,18 +111,13 @@ class TestDespotify(unittest.TestCase):
 
     @mock.patch('requests.get', side_effect=mocked_instance_identity_ok)
     def test_get_region_name_ok(self, _):
-        name = despotify.aws_region()
-        self.assertEqual(name, "us-west-2")
+        despotify.get_aws_region_and_private_ip()
+        self.assertEqual(despotify.g_region, "us-west-2")
 
     @mock.patch('requests.get', side_effect=mocked_instance_id_ok)
     def test_get_instance_id_ok(self, _):
-        instance_id = despotify.instance_id()
-        self.assertEqual(instance_id, 'inst-0001')
-
-    @mock.patch('requests.get', side_effect=mocked_instance_type_ok)
-    def test_get_instance_type_ok(self, _):
-        instance_type = despotify.instance_type()
-        self.assertEqual(instance_type, 't2.medium')
+        despotify.get_instance_id('http://test.url/path')
+        self.assertEqual(despotify.g_inst_id, 'inst-0001')
 
     @mock.patch('requests.get', side_effect=mocked_monitor_termination_notice)
     @mock.patch('despotify.despotify.asg_name', side_effect=mocked_asg_name)
@@ -127,8 +126,6 @@ class TestDespotify(unittest.TestCase):
     def test_monitor_termination_notice(self, _1, _2, _3):
         despotify.monitor_termination_notice()
 
-    def test_global_var_config(self):
-        despotify.configure_global_vars()
 
 if __name__ == '__main__':
     unittest.main()
