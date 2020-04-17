@@ -1,7 +1,7 @@
 despotify: AWS Spot Instance Termination Notice Handler for Kubernetes Nodes
 ---
 
-Despotify is a service designed to run on a PMK-on-AWS cluster to monitor and
+Despotify is a service designed to run on an AWS cluster to monitor and
 manage nodes that are spot instances.
 
 Despotify is meant to be deployed as a DaemonSet, so that it is able to run on
