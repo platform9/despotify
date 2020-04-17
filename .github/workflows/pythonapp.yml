@@ -5,9 +5,9 @@ name: Despotify
 
 on:
   push:
-    branches: [ atherton ]
+    branches: [ master ]
   pull_request:
-    branches: [ atherton ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -26,4 +26,4 @@ jobs:
         pip install -r test_requirements.txt
     - name: Test with pytest
       run: |
-        python -m unittest test_despotify.py
+        make unit-tests
