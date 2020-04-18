@@ -41,7 +41,6 @@ SLACK_USERNAME = "terminator"
 POLL_INTERVAL = 5
 # AWS gives us a 2 minute notice - so that's how long we have to clean the node up
 GRACE_PERIOD = 120
-LOG_LEVEL = 'INFO'
 g_inst_id = '(unknown instance id)'
 g_inst_identity_url = ''
 g_notice_url = ''
@@ -55,15 +54,7 @@ g_detach = False
 
 
 def setup_logging():
-    root = logging.getLogger()
-    root.setLevel(LOG_LEVEL)
-
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(LOG_LEVEL)
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] : %(message)s')
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
-
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s  line %(lineno)d: %(message)s")
 
 def _run_cmd(command):
     cmd_list = command.split(" ")
@@ -87,6 +78,10 @@ def termination_notice_received(notice_url=NOTICE_URL):
     except requests.exceptions.ReadTimeout:
         logging.warning("termination notice request timed out after %s seconds",
                         POLL_INTERVAL)
+        return False
+
+    if resp.status_code == 404:
+        # this is the most common case, so don't log it
         return False
 
     if resp.status_code != 200:
@@ -262,7 +257,6 @@ def configure_global_vars():
     global g_slack_url
     global POLL_INTERVAL
     global GRACE_PERIOD
-    global LOG_LEVEL
     global g_inst_identity_url
     global g_slack_channel
     global g_slack_username
@@ -281,7 +275,6 @@ def configure_global_vars():
     g_inst_identity_url = conf.get('DEFAULT', 'inst_identity_url', fallback=INST_IDENTITY_URL)
     POLL_INTERVAL = int(conf.get('DEFAULT', 'poll_interval', fallback=POLL_INTERVAL))
     GRACE_PERIOD = int(conf.get('DEFAULT', 'grace_period', fallback=GRACE_PERIOD))
-    LOG_LEVEL = conf.get('DEFAULT', 'level', fallback=LOG_LEVEL)
     g_detach = conf.get('DEFAULT', 'detach_from_asg', fallback='false') == 'true'
     get_instance_id(inst_id_url=inst_id_url)
     get_aws_region_and_private_ip()
@@ -289,8 +282,11 @@ def configure_global_vars():
 
 
 if __name__ == '__main__':
-    configure_global_vars()
+    # logging has to be setup before configure_global_vars() because
+    # that function calls subfunctions that log messages
     setup_logging()
+
+    configure_global_vars()
     monitor_termination_notice()
     # Sleep to ensure that this script doesn't exit and is restarted. We expect
     # the instance to be terminated by the end of this sleep.
