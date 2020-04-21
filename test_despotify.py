@@ -1,11 +1,12 @@
 import json
 import os
-import random
 import unittest
 from unittest import mock
 
-import timeout_decorator
 import despotify.despotify as despotify
+
+
+MOCK_NOTICE = False
 
 
 class MockResponse:
@@ -58,10 +59,12 @@ def mocked_instance_type_ok(*args, **kwargs):
     return MockResponse(text="t2.medium", status_code=200)
 
 def mocked_monitor_termination_notice(*args, **kwargs):
-    # Setting probability of a termination notice to 20%
-    prob = random.randint(0, 10)
-    if prob < 2:
+    global MOCK_NOTICE
+
+    if MOCK_NOTICE:
         return mocked_yes_termination_notice(args, kwargs)
+
+    MOCK_NOTICE = True
     return mocked_no_termination_notice(args, kwargs)
 
 def mocked_asg_name(*args, **kwargs):
@@ -122,7 +125,6 @@ class TestDespotify(unittest.TestCase):
     @mock.patch('requests.get', side_effect=mocked_monitor_termination_notice)
     @mock.patch('despotify.despotify.asg_name', side_effect=mocked_asg_name)
     @mock.patch('despotify.despotify._run_cmd', side_effect=mocked_run_cmd)
-    @timeout_decorator.timeout(60)
     def test_monitor_termination_notice(self, _1, _2, _3):
         despotify.monitor_termination_notice()
 
