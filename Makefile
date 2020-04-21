@@ -33,6 +33,7 @@ $(DESPOT_BUILD_DIR):
 ${TEST_VENV}: | ${DESPOT_BUILD_DIR}
 	virtualenv -p python3 ${TEST_VENV}
 	${TEST_VENV}/bin/pip install --no-cache-dir -r requirements.txt
+	${TEST_VENV}/bin/pip install test_requirements.txt
 
 $(TAG_FILE): | $(DESPOT_BUILD_DIR)
 	docker build -t $(DESPOT_IMAGE) .
