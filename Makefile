@@ -6,8 +6,8 @@ DESPOT_VERSION := $(PRODUCT_VERSION)-$(BUILD_NUMBER)
 DESPOT_IMAGE ?= platform9/despotify:$(DESPOT_VERSION)
 DESPOT_IMAGE_TARBALL = $(DESPOT_BUILD_DIR)/despotify-$(DESPOT_VERSION).tar
 TAG_FILE := $(DESPOT_BUILD_DIR)/container-full-tag
-DS_YAML_FILE := $(DESPOT_BUILD_DIR)/despotify-ds.yaml
-CONFIGMAP_TEMPLATE_FILE = $(DESPOT_BUILD_DIR)/despotify-configmap.yaml.template
+
+.PHONY: unit-tests build-image push-image run image push all venv
 
 unit-tests:
 	python3 -m unittest test_despotify.py
@@ -47,15 +47,7 @@ push: $(TAG_FILE)
 		docker push $(DESPOT_IMAGE) && docker logout))
 	docker rmi $(DESPOT_IMAGE)
 
-$(DS_YAML_FILE): $(TAG_FILE)
-	DESPOTIFY_IMAGE=`cat $(TAG_FILE)` envsubst < pf9-despotify.yaml.template > $@
-
-$(CONFIGMAP_TEMPLATE_FILE):
-	cp -f configmap.yaml.template $@
-
-ds-yaml: $(DS_YAML_FILE)
-
-all: $(DS_YAML_FILE) $(CONFIGMAP_TEMPLATE_FILE)
+all: $(TAG_FILE)
 
 venv: | $(TEST_VENV)
 

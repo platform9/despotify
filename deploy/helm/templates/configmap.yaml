@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: despotify
+  namespace: {{ .Values.namespace }}
+data:
+  NOTICE_URL: '{{ .Values.notice_url }}'
+  SLACK_URL: '{{ .Values.slack_url }}'
+  SLACK_CHANNEL: '{{ .Values.slack_channel }}'
+  SLACK_USERNAME: '{{ .Values.slack_username }}'
+  DETACH_FROM_ASG: '{{ .Values.detach_from_asg }}'

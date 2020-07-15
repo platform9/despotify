@@ -1,0 +1,18 @@
+namespace: 'kube-system'
+
+despotify_image: 'platform9/despotify:1.0.0-2007'
+detach_from_asg: 'false'
+
+# notice_url:
+# slack_url:
+# slack_channel:
+slack_username: 'terminator'
+
+deployment_labels:
+  pmkft: 'cogs'
+
+pod_labels:  # also used for deployment selector
+  name: 'pf9-despotify'
+pod_resources:
+  limits:
+    memory: '200mi'
