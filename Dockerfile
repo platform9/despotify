@@ -1,5 +1,5 @@
 FROM python:3
-ARG KUBE_VERSION=v1.16.8
+ARG KUBE_VERSION=v1.20.5
 ADD despotify.ini /
 ADD requirements.txt /
 RUN pip install --no-cache-dir -r requirements.txt
